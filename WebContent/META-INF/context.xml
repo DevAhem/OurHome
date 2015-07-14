@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Context reloadable="false">
+	<WatchedResource>WEB-INF/web.xml</WatchedResource>
+	<Resource name="jdbc/prdmpool"
+				auth="Container"
+				type="javax.sql.DataSource"
+                factory="com.alibaba.druid.pool.DruidDataSourceFactory"
+                validationQuery="select 1"
+				maxActive="100"
+				maxIdle="30"
+				maxWait="10000"
+				username="sa"
+				password="sa88230232"
+				driverClassName="net.sourceforge.jtds.jdbc.Driver"
+				url="jdbc:jtds:sqlserver://192.168.123.182:1433/ZR_Erp" />
+</Context>
