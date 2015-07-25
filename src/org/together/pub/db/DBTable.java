@@ -7,6 +7,8 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 import org.slf4j.Logger;
@@ -28,6 +30,9 @@ public class DBTable<PO, ID> {
 	private DBbean db;
 	private String tableName;
 
+	private GenerationType genType = GenerationType.AUTO;
+	private String sequenceName;
+
 	public DBTable(DBbean db, String tableName, Class<PO> classPO,
 			Class<ID> classID) {
 		this.db = db;
@@ -35,10 +40,21 @@ public class DBTable<PO, ID> {
 		this.classPO = classPO;
 
 		Field[] fields = classPO.getFields();
+
 		for (int i = 0; i < fields.length; i++) {
 			Field field = fields[i];
 			if (field.getAnnotation(Id.class) != null) {
 				idField = field;
+
+				GeneratedValue genValue = idField
+						.getAnnotation(GeneratedValue.class);
+
+				if (genValue != null) {
+					genType = genValue.strategy();
+					if (genType == GenerationType.SEQUENCE) {
+						sequenceName = genValue.generator();
+					}
+				}
 			} else {
 				fieldList.add(field);
 			}
@@ -100,6 +116,14 @@ public class DBTable<PO, ID> {
 			}
 			buf1.append(fieldList.get(i).getName());
 			buf2.append("?");
+		}
+		// idField
+		if (genType == GenerationType.SEQUENCE) {
+			buf1.append(",").append(idField.getName());
+			buf2.append(",").append(sequenceName).append(".nextval");
+		} else if (genType == GenerationType.IDENTITY) {
+			buf1.append(",").append(idField.getName());
+			buf2.append(",").append("sys_guid()");
 		}
 		return "insert into " + getTableName() + " (" + buf1 + ")"
 				+ " values (" + buf2 + ")";
@@ -239,7 +263,6 @@ public class DBTable<PO, ID> {
 
 	public PO findFirstBy(String whereClause, Object... objs) {
 		PO po = null;
-
 		Connection con = db.getConnection();
 		StringBuilder buf = new StringBuilder(selectAllSQL).append(" ").append(
 				whereClause);
@@ -298,5 +321,24 @@ public class DBTable<PO, ID> {
 			logger.error("DBError", e);
 		}
 		return list;
+	}
+
+	public void executeBy(String exeSQL, String whereClause, Object... objs) {
+		Connection con = db.getConnection();
+		String sql = exeSQL + " " + whereClause;
+
+		try (PreparedStatement pst = con.prepareStatement(sql);) {
+			for (int i = 0; i < objs.length; i++) {
+				DBUtils.getPstSetterMethod(objs.getClass()).invoke(pst, i + 1,
+						objs[i]);
+			}
+			pst.executeUpdate();
+		} catch (Exception e) {
+			logger.error("DBError", e);
+		}
+	}
+
+	public void deleteBy(String whereClause, Object... objs) {
+		executeBy("delete " + getTableName(), whereClause, objs);
 	}
 }
