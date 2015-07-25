@@ -79,6 +79,28 @@ public class DBbean {
 		return null;
 	}
 
+	public <R> R WithTransactionQuery(
+			CheckedFunction<Connection, R> connFunction,
+			CheckedFunction<Connection, R> rollbackFunction) {
+		try (Connection conn = conn()) {
+			conn.setAutoCommit(false);
+			try {
+				R result = connFunction.apply(conn);
+				conn.commit();
+				return result;
+			} catch (Throwable e) {
+				e.printStackTrace();
+				if (conn != null) {
+					rollbackFunction.apply(conn);
+					conn.rollback();
+				}
+			}
+		} catch (Throwable e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 	public <R> R withConnection(CheckedFunction<Connection, R> connFunction) {
 		try (Connection conn = conn();) {
 			return connFunction.apply(conn);
@@ -159,6 +181,17 @@ public class DBbean {
 						objs[i]);
 			}
 			return rsFunction.apply(pst);
+		} catch (Throwable e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public <R> R executeDynamicSQL(String dsql, SQLParams params,
+			CheckedFunction<PreparedStatement, R> pstFunction) {
+		try (PreparedStatement pst = DSQLStatement.create(getConnection(),
+				dsql, params)) {
+			return pstFunction.apply(pst);
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
