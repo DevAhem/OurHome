@@ -15,7 +15,7 @@ import javax.servlet.http.HttpSession;
 
 import com.alibaba.fastjson.JSON;
 
-@WebFilter(filterName = "LoginFilter", urlPatterns = { "/service/*" })
+//@WebFilter(filterName = "LoginFilter", urlPatterns = { "/service/*" })
 public class LoginFilter implements Filter {
 
 	@Override

@@ -12,5 +12,6 @@
 				username="home_dev"
 				password="123456"
 				driverClassName="com.mysql.jdbc.Driver"
-				url="jdbc:jtds:sqlserver://192.168.1.110:3306/db_home" />
+				url="jdbc:mysql://110.80.172.247:33061/db_home" />
+<!-- 				url="jdbc:mysql://192.168.1.110:3306/db_home" /> -->
 </Context>

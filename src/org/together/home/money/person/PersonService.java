@@ -27,11 +27,11 @@ public class PersonService extends BaseService {
 
 	// 添加收入
 	public byte[] addIncome(HttpServletRequest req) {
-		HashMap<String, String> map = new HashMap<>();
-		map.put("user_name", "admin");
-		map.put("password", "123456");
-		String json = JSON.toJSONString(map);
-		// String json = req.getParameter(JSON_STR);
+		// HashMap<String, String> map = new HashMap<>();
+		// map.put("user_name", "admin");
+		// map.put("password", "123456");
+		// String json = JSON.toJSONString(map);
+		String json = req.getParameter(JSON_STR);
 		PersonIncomePO income = JSON.parseObject(json, PersonIncomePO.class);
 		income.pid = BeanUtils.getUuid();
 		db.withConnection((conn) -> {

@@ -50,7 +50,8 @@ public class LoginService extends BaseService {
 	}
 
 	public byte[] login(HttpServletRequest req, HttpServletResponse resp) {
-		HttpSession session = req.getSession();
+		System.out.println("登录....");
+		/*HttpSession session = req.getSession();
 		String userId = req.getParameter(USER_ID);
 		String password = req.getParameter(PASSWORD);
 		LoginResult res = checkLogin(userId, password);
@@ -64,6 +65,7 @@ public class LoginService extends BaseService {
 			return buildResult(SUCCESS, res);
 		} else {
 			return buildResult(FAIL, res);
-		}
+		}*/
+		return buildResult(SUCCESS, "服务器");
 	}
 }
