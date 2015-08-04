@@ -59,8 +59,7 @@ public class DBbean {
 		}
 	}
 
-	public <R> R WithTransactionQuery(
-			CheckedFunction<Connection, R> connFunction) {
+	public <R> R WithTransactionQuery(CheckedFunction<Connection, R> connFunction) {
 		try (Connection conn = conn()) {
 			conn.setAutoCommit(false);
 			try {
@@ -79,8 +78,7 @@ public class DBbean {
 		return null;
 	}
 
-	public <R> R WithTransactionQuery(
-			CheckedFunction<Connection, R> connFunction,
+	public <R> R WithTransactionQuery(CheckedFunction<Connection, R> connFunction,
 			CheckedFunction<Connection, R> rollbackFunction) {
 		try (Connection conn = conn()) {
 			conn.setAutoCommit(false);
@@ -106,6 +104,7 @@ public class DBbean {
 			return connFunction.apply(conn);
 		} catch (Throwable e) {
 			e.printStackTrace();
+			// throw e;
 		}
 		return null;
 	}
@@ -115,8 +114,7 @@ public class DBbean {
 	 * @param pstConsumer
 	 * @param rsConsumer
 	 */
-	public <T, R> void executeQuery(String sql,
-			CheckedConsumer<PreparedStatement> pstConsumer,
+	public <T, R> void executeQuery(String sql, CheckedConsumer<PreparedStatement> pstConsumer,
 			CheckedConsumer<ResultSet> rsConsumer) {
 		Connection conn = getConnection();
 		try (PreparedStatement pst = conn.prepareStatement(sql);) {
@@ -142,8 +140,7 @@ public class DBbean {
 	 * @param pstFunction
 	 * @return
 	 */
-	public <R> R executePst(String sql,
-			CheckedFunction<PreparedStatement, R> pstFunction) {
+	public <R> R executePst(String sql, CheckedFunction<PreparedStatement, R> pstFunction) {
 		Connection conn = getConnection();
 		try (PreparedStatement pst = conn.prepareStatement(sql);) {
 			return pstFunction.apply(pst);
@@ -163,8 +160,7 @@ public class DBbean {
 
 		try (PreparedStatement pst = con.prepareStatement(exeSQL);) {
 			for (int i = 0; i < objs.length; i++) {
-				DBUtils.getPstSetterMethod(objs.getClass()).invoke(pst, i + 1,
-						objs[i]);
+				DBUtils.getPstSetterMethod(objs.getClass()).invoke(pst, i + 1, objs[i]);
 			}
 			pst.executeUpdate();
 		} catch (Exception e) {
@@ -172,13 +168,12 @@ public class DBbean {
 		}
 	}
 
-	public <R> R executeQueryWithParam(String exeSQL,
-			CheckedFunction<PreparedStatement, R> rsFunction, Object... objs) {
+	public <R> R executeQueryWithParam(String exeSQL, CheckedFunction<PreparedStatement, R> rsFunction,
+			Object... objs) {
 		Connection con = getConnection();
 		try (PreparedStatement pst = con.prepareStatement(exeSQL)) {
 			for (int i = 0; i < objs.length; i++) {
-				DBUtils.getPstSetterMethod(objs.getClass()).invoke(pst, i + 1,
-						objs[i]);
+				DBUtils.getPstSetterMethod(objs.getClass()).invoke(pst, i + 1, objs[i]);
 			}
 			return rsFunction.apply(pst);
 		} catch (Throwable e) {
@@ -187,10 +182,8 @@ public class DBbean {
 		return null;
 	}
 
-	public <R> R executeDynamicSQL(String dsql, SQLParams params,
-			CheckedFunction<PreparedStatement, R> pstFunction) {
-		try (PreparedStatement pst = DSQLStatement.create(getConnection(),
-				dsql, params)) {
+	public <R> R executeDynamicSQL(String dsql, SQLParams params, CheckedFunction<PreparedStatement, R> pstFunction) {
+		try (PreparedStatement pst = DSQLStatement.create(getConnection(), dsql, params)) {
 			return pstFunction.apply(pst);
 		} catch (Throwable e) {
 			e.printStackTrace();

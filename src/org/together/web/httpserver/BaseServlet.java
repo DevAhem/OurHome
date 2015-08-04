@@ -13,23 +13,11 @@ import com.alibaba.fastjson.JSON;
 public class BaseServlet extends HttpServlet {
 
 	private static final long serialVersionUID = -2926234836973163829L;
+	protected final static String ACTION = "action";
 
-	// 用来区分同一个url对应的不同请求
-	protected final static String S_ACTION = "saction";
-
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static void outputJSON(HttpServletResponse resp, Object obj)
-			throws IOException {
-		HashMap map = new HashMap<>();
-		try {
-			map.put("status", "OK");
-			map.put("result", obj);
-		} catch (Exception e) {
-			map.put("result", "服务器出现异常！");
-			e.printStackTrace();
-		}
+	public static void outputJSON(HttpServletResponse resp, byte[] res) throws IOException {
 		resp.setContentType("text/html;charset=utf-8");
-		resp.getOutputStream().write(JSON.toJSONBytes(map));
+		resp.getOutputStream().write(res);
 	}
 
 	protected String readJSONString(HttpServletRequest req) {
@@ -47,14 +35,10 @@ public class BaseServlet extends HttpServlet {
 		}
 		return json.toString();
 	}
-	
-	public static void outputHtml(HttpServletResponse resp, String html)
-			throws IOException {
+
+	public static void outputHtml(HttpServletResponse resp, String html) throws IOException {
 		resp.setContentType("text/html;charset=utf-8");
 		resp.getWriter().print(html);
 	}
-		
-		
-		
 
 }

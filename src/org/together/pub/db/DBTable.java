@@ -33,8 +33,7 @@ public class DBTable<PO, ID> {
 	private GenerationType genType = GenerationType.AUTO;
 	private String sequenceName;
 
-	public DBTable(DBbean db, String tableName, Class<PO> classPO,
-			Class<ID> classID) {
+	public DBTable(DBbean db, String tableName, Class<PO> classPO, Class<ID> classID) {
 		this.db = db;
 		this.tableName = tableName;
 		this.classPO = classPO;
@@ -46,8 +45,7 @@ public class DBTable<PO, ID> {
 			if (field.getAnnotation(Id.class) != null) {
 				idField = field;
 
-				GeneratedValue genValue = idField
-						.getAnnotation(GeneratedValue.class);
+				GeneratedValue genValue = idField.getAnnotation(GeneratedValue.class);
 
 				if (genValue != null) {
 					genType = genValue.strategy();
@@ -102,8 +100,7 @@ public class DBTable<PO, ID> {
 			buf1.append(",").append(fieldList.get(i).getName());
 			buf2.append(",").append("?");
 		}
-		return "insert into " + getTableName() + " (" + buf1 + ")"
-				+ " values (" + buf2 + ")";
+		return "insert into " + getTableName() + " (" + buf1 + ")" + " values (" + buf2 + ")";
 	}
 
 	private String buildCreateSQL() {
@@ -125,13 +122,11 @@ public class DBTable<PO, ID> {
 			buf1.append(",").append(idField.getName());
 			buf2.append(",").append("sys_guid()");
 		}
-		return "insert into " + getTableName() + " (" + buf1 + ")"
-				+ " values (" + buf2 + ")";
+		return "insert into " + getTableName() + " (" + buf1 + ")" + " values (" + buf2 + ")";
 	}
 
 	private String buildStoreSQL() {
-		StringBuilder buf = new StringBuilder("update ").append(getTableName())
-				.append(" set ");
+		StringBuilder buf = new StringBuilder("update ").append(getTableName()).append(" set ");
 		for (int i = 0; i < fieldList.size(); i++) {
 			if (i != 0) {
 				buf.append(",");
@@ -144,14 +139,13 @@ public class DBTable<PO, ID> {
 
 	private String buildDeleteSQL() {
 		StringBuilder buf = new StringBuilder();
-		buf.append("delete ").append(getTableName()).append(" where ")
-				.append(idField.getName()).append(" = ?");
+		buf.append("delete ").append(getTableName()).append(" where ").append(idField.getName()).append(" = ?");
 		return buf.toString();
 	}
 
 	private String buildLoadSQL() {
-		StringBuilder buf = new StringBuilder(selectAllSQL).append(" ")
-				.append("where ").append(idField.getName()).append(" = ?");
+		StringBuilder buf = new StringBuilder(selectAllSQL).append(" ").append("where ").append(idField.getName())
+				.append(" = ?");
 		return buf.toString();
 	}
 
@@ -159,12 +153,10 @@ public class DBTable<PO, ID> {
 		Connection con = db.getConnection();
 		try (PreparedStatement pst = con.prepareStatement(insertSQL);) {
 			Field field;
-			DBUtils.getPstSetterMethod(idField.getType()).invoke(pst, 1,
-					idField.get(po));
+			DBUtils.getPstSetterMethod(idField.getType()).invoke(pst, 1, idField.get(po));
 			for (int i = 0; i < fieldList.size(); i++) {
 				field = fieldList.get(i);
-				DBUtils.getPstSetterMethod(field.getType()).invoke(pst, i + 2,
-						field.get(po));
+				DBUtils.getPstSetterMethod(field.getType()).invoke(pst, i + 2, field.get(po));
 			}
 			pst.executeUpdate();
 		} catch (Exception e) {
@@ -178,12 +170,10 @@ public class DBTable<PO, ID> {
 			Field field;
 
 			for (PO po : poList) {
-				DBUtils.getPstSetterMethod(idField.getType()).invoke(pst, 1,
-						idField.get(po));
+				DBUtils.getPstSetterMethod(idField.getType()).invoke(pst, 1, idField.get(po));
 				for (int i = 0; i < fieldList.size(); i++) {
 					field = fieldList.get(i);
-					DBUtils.getPstSetterMethod(field.getType()).invoke(pst,
-							i + 2, field.get(po));
+					DBUtils.getPstSetterMethod(field.getType()).invoke(pst, i + 2, field.get(po));
 				}
 				pst.addBatch();
 			}
@@ -199,8 +189,7 @@ public class DBTable<PO, ID> {
 			Field field;
 			for (int i = 0; i < fieldList.size(); i++) {
 				field = fieldList.get(i);
-				DBUtils.getPstSetterMethod(field.getType()).invoke(pst, i + 1,
-						field.get(po));
+				DBUtils.getPstSetterMethod(field.getType()).invoke(pst, i + 1, field.get(po));
 			}
 			pst.executeUpdate();
 		} catch (Exception e) {
@@ -216,11 +205,9 @@ public class DBTable<PO, ID> {
 			Field field;
 			for (int i = 0; i < fieldList.size(); i++) {
 				field = fieldList.get(i);
-				DBUtils.getPstSetterMethod(field.getType()).invoke(pst, i + 1,
-						field.get(po));
+				DBUtils.getPstSetterMethod(field.getType()).invoke(pst, i + 1, field.get(po));
 			}
-			DBUtils.getPstSetterMethod(idField.getType()).invoke(pst,
-					fieldList.size() + 1, idField.get(po));
+			DBUtils.getPstSetterMethod(idField.getType()).invoke(pst, fieldList.size() + 1, idField.get(po));
 
 			pst.executeUpdate();
 		} catch (Exception e) {
@@ -264,13 +251,11 @@ public class DBTable<PO, ID> {
 	public PO findFirstBy(String whereClause, Object... objs) {
 		PO po = null;
 		Connection con = db.getConnection();
-		StringBuilder buf = new StringBuilder(selectAllSQL).append(" ").append(
-				whereClause);
+		StringBuilder buf = new StringBuilder(selectAllSQL).append(" ").append(whereClause);
 		String sql = buf.toString();
 		try (PreparedStatement pst = con.prepareStatement(sql);) {
 			for (int i = 0; i < objs.length; i++) {
-				DBUtils.getPstSetterMethod(objs.getClass()).invoke(pst, i + 1,
-						objs[i]);
+				DBUtils.getPstSetterMethod(objs.getClass()).invoke(pst, i + 1, objs[i]);
 			}
 			try (ResultSet rs = pst.executeQuery();) {
 				if (rs.next()) {
@@ -294,14 +279,12 @@ public class DBTable<PO, ID> {
 		List<PO> list = new ArrayList<>();
 		Connection con = db.getConnection();
 
-		StringBuilder buf = new StringBuilder(selectAllSQL).append(" ").append(
-				whereClause);
+		StringBuilder buf = new StringBuilder(selectAllSQL).append(" ").append(whereClause);
 		String sql = buf.toString();
 
 		try (PreparedStatement pst = con.prepareStatement(sql);) {
 			for (int i = 0; i < objs.length; i++) {
-				DBUtils.getPstSetterMethod(objs[i].getClass()).invoke(pst,
-						i + 1, objs[i]);
+				DBUtils.getPstSetterMethod(objs[i].getClass()).invoke(pst, i + 1, objs[i]);
 			}
 			try (ResultSet rs = pst.executeQuery();) {
 				while (rs.next()) {
@@ -329,8 +312,7 @@ public class DBTable<PO, ID> {
 
 		try (PreparedStatement pst = con.prepareStatement(sql);) {
 			for (int i = 0; i < objs.length; i++) {
-				DBUtils.getPstSetterMethod(objs.getClass()).invoke(pst, i + 1,
-						objs[i]);
+				DBUtils.getPstSetterMethod(objs.getClass()).invoke(pst, i + 1, objs[i]);
 			}
 			pst.executeUpdate();
 		} catch (Exception e) {
